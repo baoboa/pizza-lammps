@@ -140,7 +140,7 @@ d.extra(obj)				   extract bond/tri/line info from obj
       bdump object for bonds, tdump object for tris, ldump object for lines.
       mdump object for tris
 """
-
+__doc__=docstr
 # History
 #   8/05, Steve Plimpton (SNL): original version
 #   12/09, David Hart (SNL): allow use of NumPy or Numeric
@@ -190,6 +190,7 @@ from math import *             # any function could be used by set()
 
 try:
   import numpy as np
+  from StringIO import StringIO
   oldnumeric = False
 except:
   import Numeric as np
@@ -402,19 +403,24 @@ class dump:
           if xflag == 1 and yflag == 1 and zflag == 1: self.scale_original = 1
           
       if snap.natoms:
-        words = f.readline().split()
-        ncol = len(words)
-        for i in xrange(1,snap.natoms):
-          words += f.readline().split()
-        floats = map(float,words)
-        if oldnumeric: atoms = np.zeros((snap.natoms,ncol),np.Float)
-        else: atoms = np.zeros((snap.natoms,ncol),np.float)
-        start = 0
-        stop = ncol
-        for i in xrange(snap.natoms):
-          atoms[i] = floats[start:stop]
-          start = stop
-          stop += ncol
+        if oldnumeric:
+          words = f.readline().split()
+          ncol = len(words)
+          for i in xrange(1,snap.natoms):
+            words += f.readline().split()
+          floats = map(float,words)
+          atoms = np.zeros((snap.natoms,ncol),np.Float)
+          start = 0
+          stop = ncol
+          for i in xrange(snap.natoms):
+            atoms[i] = floats[start:stop]
+            start = stop
+            stop += ncol
+        else:
+          ss=StringIO("")
+          for i in xrange(snap.natoms): ss.write(f.readline())
+          atoms=np.loadtxt(ss)
+          print "atoms.shape",atoms.shape 
       else: atoms = None
       snap.atoms = atoms
       return snap
