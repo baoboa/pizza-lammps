@@ -419,6 +419,7 @@ class dump:
         else:
           ss=StringIO("")
           for i in xrange(snap.natoms): ss.write(f.readline())
+	  ss.pos=0
           atoms=np.loadtxt(ss)
           print "atoms.shape",atoms.shape 
       else: atoms = None
